@@ -1,5 +1,6 @@
 # n8n-MCP
 
+[![smithery badge](https://smithery.ai/badge/@kivilaid/n8n-mcp)](https://smithery.ai/server/@kivilaid/n8n-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub stars](https://img.shields.io/github/stars/czlonkowski/n8n-mcp?style=social)](https://github.com/czlonkowski/n8n-mcp)
 [![Version](https://img.shields.io/badge/version-2.7.0-blue.svg)](https://github.com/czlonkowski/n8n-mcp)
@@ -21,6 +22,14 @@ n8n-MCP serves as a bridge between n8n's workflow automation platform and AI mod
 ## 🚀 Quick Start
 
 Get n8n-MCP running in 5 minutes:
+
+### Installing via Smithery
+
+To install n8n-mcp for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@kivilaid/n8n-mcp):
+
+```bash
+npx -y @smithery/cli install @kivilaid/n8n-mcp --client claude
+```
 
 ### Option 1: Docker (Easiest) 🚀
 
