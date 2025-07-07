@@ -3,7 +3,9 @@
 [![smithery badge](https://smithery.ai/badge/@kivilaid/n8n-mcp)](https://smithery.ai/server/@kivilaid/n8n-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub stars](https://img.shields.io/github/stars/czlonkowski/n8n-mcp?style=social)](https://github.com/czlonkowski/n8n-mcp)
-[![Version](https://img.shields.io/badge/version-2.7.4-blue.svg)](https://github.com/czlonkowski/n8n-mcp)
+[![Version](https://img.shields.io/badge/version-2.7.8-blue.svg)](https://github.com/czlonkowski/n8n-mcp)
+[![npm version](https://img.shields.io/npm/v/n8n-mcp.svg)](https://www.npmjs.com/package/n8n-mcp)
+[![n8n version](https://img.shields.io/badge/n8n-v1.100.1-orange.svg)](https://github.com/n8n-io/n8n)
 [![Docker](https://img.shields.io/badge/docker-ghcr.io%2Fczlonkowski%2Fn8n--mcp-green.svg)](https://github.com/czlonkowski/n8n-mcp/pkgs/container/n8n-mcp)
 
 A Model Context Protocol (MCP) server that provides AI assistants with comprehensive access to n8n node documentation, properties, and operations. Deploy in minutes to give Claude and other AI assistants deep knowledge about n8n's 525+ workflow automation nodes.
@@ -31,7 +33,63 @@ To install n8n-mcp for Claude Desktop automatically via [Smithery](https://smith
 npx -y @smithery/cli install @kivilaid/n8n-mcp --client claude
 ```
 
-### Option 1: Docker (Easiest) 🚀
+### Option 1: npx (Fastest - No Installation!) 🚀
+
+**Prerequisites:** [Node.js](https://nodejs.org/) installed on your system
+
+```bash
+# Run directly with npx (no installation needed!)
+npx n8n-mcp
+```
+
+Add to Claude Desktop config:
+
+**Basic configuration (documentation tools only):**
+```json
+{
+  "mcpServers": {
+    "n8n-mcp": {
+      "command": "npx",
+      "args": ["n8n-mcp"],
+      "env": {
+        "MCP_MODE": "stdio",
+        "LOG_LEVEL": "error",
+        "DISABLE_CONSOLE_OUTPUT": "true"
+      }
+    }
+  }
+}
+```
+
+**Full configuration (with n8n management tools):**
+```json
+{
+  "mcpServers": {
+    "n8n-mcp": {
+      "command": "npx",
+      "args": ["n8n-mcp"],
+      "env": {
+        "MCP_MODE": "stdio",
+        "LOG_LEVEL": "error",
+        "DISABLE_CONSOLE_OUTPUT": "true",
+        "N8N_API_URL": "https://your-n8n-instance.com",
+        "N8N_API_KEY": "your-api-key"
+      }
+    }
+  }
+}
+```
+
+> **Note**: npx will download and run the latest version automatically. The package includes a pre-built database with all n8n node information.
+
+**Configuration file locations:**
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+- **Linux**: `~/.config/Claude/claude_desktop_config.json`
+
+**Restart Claude Desktop after updating configuration** - That's it! 🎉
+
+### Option 2: Docker (Easy & Isolated) 🐳
 
 **Prerequisites:** Docker installed on your system
 
@@ -131,6 +189,8 @@ Add to Claude Desktop config:
 }
 ```
 
+>💡 Tip: If you’re running n8n locally on the same machine (e.g., via Docker), use http://host.docker.internal:5678 as the N8N_API_URL.
+
 > **Note**: The n8n API credentials are optional. Without them, you'll have access to all documentation and validation tools. With them, you'll additionally get workflow management capabilities (create, update, execute workflows).
 
 **Important:** The `-i` flag is required for MCP stdio communication.
@@ -142,7 +202,7 @@ Add to Claude Desktop config:
 
 **Restart Claude Desktop after updating configuration** - That's it! 🎉
 
-### Option 2: Local Installation
+### Option 3: Local Installation (For Development)
 
 **Prerequisites:** [Node.js](https://nodejs.org/) installed on your system
 
@@ -197,6 +257,8 @@ Add to Claude Desktop config:
 ```
 
 > **Note**: The n8n API credentials can be configured either in a `.env` file (create from `.env.example`) or directly in the Claude config as shown above.
+
+> 💡 Tip: If you’re running n8n locally on the same machine (e.g., via Docker), use http://host.docker.internal:5678 as the N8N_API_URL.
 
 ## 🤖 Claude Project Setup
 
@@ -500,7 +562,7 @@ npm run dev:http       # HTTP dev mode
 
 ## 📊 Metrics & Coverage
 
-Current database coverage (n8n v1.99.1):
+Current database coverage (n8n v1.100.1):
 
 - ✅ **525/525** nodes loaded (100%)
 - ✅ **520** nodes with properties (99%)
@@ -550,6 +612,42 @@ Current database coverage (n8n v1.99.1):
 
 
 See [CHANGELOG.md](./docs/CHANGELOG.md) for full version history.
+
+## ⚠️ Known Issues
+
+### Claude Desktop Container Duplication
+When using n8n-MCP with Claude Desktop in Docker mode, Claude Desktop may start the container twice during initialization. This is a known Claude Desktop bug ([modelcontextprotocol/servers#812](https://github.com/modelcontextprotocol/servers/issues/812)).
+
+**Symptoms:**
+- Two identical containers running for the same MCP server
+- Container name conflicts if using `--name` parameter
+- Doubled resource usage
+
+**Workarounds:**
+1. **Avoid using --name parameter** - Let Docker assign random names:
+```json
+{
+  "mcpServers": {
+    "n8n-mcp": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "ghcr.io/czlonkowski/n8n-mcp:latest"
+      ]
+    }
+  }
+}
+```
+
+2. **Use HTTP mode instead** - Deploy n8n-mcp as a standalone HTTP server:
+```bash
+docker compose up -d  # Start HTTP server
+```
+Then connect via mcp-remote (see [HTTP Deployment Guide](./docs/HTTP_DEPLOYMENT.md))
+
+3. **Use Docker MCP Toolkit** - Better container management through Docker Desktop
+
+This issue does not affect the functionality of n8n-MCP itself, only the container management in Claude Desktop.
 
 ## 📦 License
 
